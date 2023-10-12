@@ -1,7 +1,7 @@
 # SOEN-342
 Project repository
 
-Team memebers ID:
+Team members info:
 |Name | ID | Email|
 |-----|------|------|
 |Oussama Cherifi | 40212275 | oussamacherifi7@gmail.com|
