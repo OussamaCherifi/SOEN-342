@@ -1,7 +1,10 @@
 # SOEN-342
 Project repository
 
-Team members info:
+<h2>Demo Iteration 1:</h2>
+<a href="https://youtu.be/IFlQPUJckH4">YouTube Link</a>
+
+<h2>Team members info:</h2>
 |Name | ID | Email|
 |-----|------|------|
 |Oussama Cherifi | 40212275 | oussamacherifi7@gmail.com|
