@@ -1,0 +1,129 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[b5paper,margin=1cm]{geometry}
+
+\usepackage{zed-csp}
+
+\begin{document}
+
+\title{342 Formal Specification}
+\author{Oussama Cherifi, Radeef Chowdhury, Ismail Feham}
+\date{11/05/2023}
+\maketitle
+\thispagestyle{empty}
+
+\textbf{Schemas}
+
+\begin{schema}{TempMonitor}
+deployed: \power SENSOR\verb|_|TYPE \\
+map: SENSOR\verb|_|TYPE \pfun LOCATION\verb|_|TYPE \\
+read: SENSOR\verb|_|TYPE \pfun TEMPERATURE\verb|_|TYPE
+\where
+deployed = \dom map \\
+\dom read
+\end{schema}
+
+\begin{schema}{DeployedSensorOk}
+\Delta TempMonitor \\
+sensor?: SENSOR\verb|_|TYPE \\
+location?: LOCATION\verb|_|TYPE \\
+temperature?: TEMPERATURE\verb|_|TYPE
+\where
+sensor? \notin deployed \\
+location? \notin ran \hspace{0.15cm} map \\
+deployed' = deployed \cup \{sensor?\} \\
+map' = map \cup \{sensor? \rightarrow location?\} \\
+read' = read \cup \{sensor? \rightarrow temperature?\}
+\end{schema}
+
+\begin{schema}{ReadTemperatureOk}
+\Xi TempMonitor \\
+location?: LOCATION\verb|_|TYPE \\
+temperature!: TEMPERATURE\verb|_|TYPE
+\where
+location? \in ran \hspace{0.15cm} map \\
+temperature! = read (map^{-1}(location?))
+\end{schema}
+
+\begin{schema}{Success}
+\Xi TempMonitor \\
+response!: MESSAGE
+\where
+response! = 'okay'
+\end{schema}
+
+\begin{schema}{SensorAlreadyDeployed}
+\Xi TempMonitor \\
+sensor?: SENSOR\verb|_|TYPE \\
+response!: MESSAGE
+\where
+sensor? \in deployed \\
+response! = 'Sensor\hspace{0.15cm}deployed'
+\end{schema}
+
+\begin{schema}{LocationAlreadyCovered}
+\Xi TempMonitor \\
+location?: LOCATION\verb|_|TYPE \\
+response!: MESSAGE
+\where
+location? \in ran \hspace{0.15cm} map \\
+response! = 'Location\hspace{0.15cm}already\hspace{0.15cm}covered'
+\end{schema}
+
+\begin{schema}{LocationUnknown}
+\Xi TempMonitor \\
+location?: LOCATION\verb|_|TYPE \\
+response!: MESSAGE
+\where
+location? \notin ran \hspace{0.15cm} map \\
+response! = 'Location\hspace{0.15cm}not\hspace{0.15cm}covered'
+\end{schema}
+
+\begin{schema}{ReplaceSensorOK}
+\Delta TempMonitor \\
+oldSensor?: SENSOR\verb|_|TYPE \\
+newSensor?: SENSOR\verb|_|TYPE \\
+location?: LOCATION\verb|_|TYPE \\
+temperature?: TEMPERATURE\verb|_|TYPE \\
+response!: MESSAGE
+\where
+oldSensor? \in deployed \\
+newSensor? \notin deployed \\
+location? = map (oldSensor?) \\
+temperature? = read (oldSensor?) \\
+deployed' = (deployed - \{oldSensor?\}) \cup \{newSensor?\} \\
+map' = (map - \{oldSensor? \rightarrow location?\}) \cup \{newSensor? \rightarrow location?\} \\
+read' = (read - \{oldSensor? \rightarrow temperature?\}) \cup \{newSensor? \rightarrow temperature?\}
+\end{schema}
+
+\begin{schema}{GetAllLocationsAndTemps}
+\Xi TempMonitor \\
+locations!: \power LOCATION\verb|_|TYPE \\
+temperatures!: \power TEMPERATURE\verb|_|TYPE
+\where
+locations! = ran \hspace{0.15cm} map \\
+temperatures! = ran \hspace{0.15cm} read
+\end{schema}
+
+\begin{schema}{SensorNotDeployed}
+\Xi TempMonitor \\
+oldSensor?: SENSOR\verb|_|TYPE \\
+response!: MESSAGE
+\where
+oldSensor? \notin deployed \\
+response! = 'Sensor\hspace{0.15cm}not\hspace{0.15cm}deployed'
+\end{schema}
+
+\textbf{Operations}
+\begin{zed}
+DeploySensor \simeq (DeploySensorOK \land Success) \lor (SensorAlreadyDeployed \\ \lor LocationAlreadyCovered) 
+\also 
+ReadTemperature \simeq (ReadTemperatureOK \land Success) \lor LocationUnknown
+\also 
+ReplaceSensor \simeq (ReplaceSensorOK \land Success) \lor (SensorAlreadyDeployed \lor \\ SensorNotDeployed)
+\also 
+GetAllLocationsAndTemps \simeq (GetAllLocationsAndTempsOK \land Success) \lor \\ LocationUnknown
+\end{zed}
+
+\end{document}
