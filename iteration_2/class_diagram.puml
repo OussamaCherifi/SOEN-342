@@ -1,0 +1,195 @@
+@startuml
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+skinparam nodesep 90
+skinparam ranksep 70
+
+together {
+class SensorRegistry
+class LocationRegistry
+class SensorLocationPairRegistry
+class SensorTemperaturePairRegistry
+class TemperatureRegistry
+}
+
+class Console {
+  + Console(): 
+  ~ registryManager: RegistryManager
+  ~ scanner: Scanner
+  + displayLocations(): void
+  + removeSensor(): void
+  + initializeSensors(): void
+  + start(): void
+  + addSensor(): void
+  + displaySensors(): void
+  + deploySensor(): void
+}
+interface HasUUID << interface >> {
+  + getUUID(): UUID
+}
+interface IPairRegistry<K, V, T> << interface >> {
+  + createPair(K, V): T
+  + isPairMultiplicityValid(K, V): boolean
+}
+class Location {
+  + Location(String): 
+  + Location(): 
+  - sensorLocationPair: SensorLocationPair
+  - locationID: UUID
+  - locationName: String
+  + getSensorLocationPair(): SensorLocationPair
+  + toString(): String
+  + setSensorLocationPair(SensorLocationPair): void
+  + getLocationName(): String
+  + setLocationName(String): void
+  + getUUID(): UUID
+}
+class LocationRegistry {
+  - LocationRegistry(): 
+  - instance: LocationRegistry
+  + createItem(): UUID
+  + deleteItem(UUID): void
+  + updateLocationName(UUID, String): void
+  + getInstance(): LocationRegistry
+}
+abstract class Registry<T> {
+  + Registry(): 
+  - registryItems: HashMap<UUID, T>
+  + createItem(): UUID
+  + displayItems(): void
+  + deleteItem(UUID): void
+  # addItem(T): void
+  # removeItem(UUID): void
+  # getItem(UUID): T
+  + getItems(): List<T>
+}
+class RegistryManager {
+  - RegistryManager(): 
+  - instance: RegistryManager
+  - sensorLocationPairRegistry: SensorLocationPairRegistry
+  - sensorRegistry: SensorRegistry
+  - sensorTemperaturePairRegistry: SensorTemperaturePairRegistry
+  - locationRegistry: LocationRegistry
+  - temperatureRegistry: TemperatureRegistry
+  + getLocationRegistry(): LocationRegistry
+  + getSensorRegistry(): SensorRegistry
+  + getSensorTemperaturePairRegistry(): SensorTemperaturePairRegistry
+  + getInstance(): RegistryManager
+  + getSensorLocationPairRegistry(): SensorLocationPairRegistry
+  + getTemperatureRegistry(): TemperatureRegistry
+}
+class Sensor {
+  + Sensor(): 
+  - sensorID: UUID
+  - locationPair: SensorLocationPair
+  - temperaturePair: SensorTemperaturePair
+  - isDeployed: boolean
+  + getLocationPair(): SensorLocationPair
+  + getUUID(): UUID
+  + deploy(SensorLocationPair, SensorTemperaturePair): void
+  + getTemperaturePair(): SensorTemperaturePair
+  + updateTemperature(float): void
+  + getIsDeployed(): boolean
+  + toString(): String
+  + setLocationPair(SensorLocationPair): void
+  + setIsDeployed(boolean): void
+}
+class SensorLocationPair {
+  + SensorLocationPair(Sensor, Location): 
+  - SensorLocationPair(): 
+  - sensorLocationPairID: UUID
+  - location: Location
+  - sensor: Sensor
+  + setLocation(Location): void
+  + setSensor(Sensor): void
+  + getSensor(): Sensor
+  + toString(): String
+  + getLocation(): Location
+  + getUUID(): UUID
+}
+class SensorLocationPairRegistry {
+  - SensorLocationPairRegistry(): 
+  - instance: SensorLocationPairRegistry
+  + deleteItem(UUID): void
+  + getInstance(): SensorLocationPairRegistry
+  + createPair(Sensor, Location): SensorLocationPair
+  + isPairMultiplicityValid(Sensor, Location): boolean
+  + createItem(): UUID
+}
+class SensorRegistry {
+  - SensorRegistry(): 
+  - instance: SensorRegistry
+  + deploySensor(UUID, UUID): void
+  + createItem(): UUID
+  + isSensorDeployed(UUID): boolean
+  + deleteItem(UUID): void
+  + getInstance(): SensorRegistry
+}
+class SensorTemperaturePair {
+  - SensorTemperaturePair(): 
+  + SensorTemperaturePair(Sensor, Temperature): 
+  - temperature: Temperature
+  - sensorTemperaturePairID: UUID
+  - sensor: Sensor
+  + getSensor(): Sensor
+  + getUUID(): UUID
+  + getTemperature(): Temperature
+  + toString(): String
+}
+class SensorTemperaturePairRegistry {
+  - SensorTemperaturePairRegistry(): 
+  - instance: SensorTemperaturePairRegistry
+  + isPairMultiplicityValid(Sensor, Temperature): boolean
+  + createPair(Sensor, Temperature): SensorTemperaturePair
+  + deleteItem(UUID): void
+  + createItem(): UUID
+  + getInstance(): SensorTemperaturePairRegistry
+}
+class Temperature {
+  + Temperature(): 
+  ~ sensorTemperaturePair: SensorTemperaturePair
+  - temperatureID: UUID
+  - value: float
+  + setValue(float): void
+  + setSensorTemperaturePair(SensorTemperaturePair): void
+  + getValue(): float
+  + getUUID(): UUID
+}
+class TemperatureRegistry {
+  - TemperatureRegistry(): 
+  - instance: TemperatureRegistry
+  + createItem(): UUID
+  + deleteItem(UUID): void
+  + getInstance(): TemperatureRegistry
+}
+
+Console                        -[#595959,plain]-> "1" RegistryManager               
+Location                       -[#008200,dashed]-^  HasUUID                       
+Location                      "1" -[#595959,plain]- "1" SensorLocationPair            
+LocationRegistry              "1" *-[#595959,plain]- "*" Location                      : registered-in <
+LocationRegistry               -[#000082,plain]-^  Registry                      
+Registry                       -[#595959,dashed]-^  HasUUID      
+RegistryManager                -[#595959,plain]-> "1" LocationRegistry              
+RegistryManager                -[#595959,plain]-> "1" SensorLocationPairRegistry    
+RegistryManager                -[#595959,plain]-> "1" SensorRegistry                
+RegistryManager                -[#595959,plain]-> "1" SensorTemperaturePairRegistry 
+RegistryManager                -[#595959,plain]-> "1" TemperatureRegistry           
+Sensor                         -[#008200,dashed]-^  HasUUID                       
+Sensor                        "1" -[#595959,plain]- "1" SensorLocationPair            
+Sensor                        "1" -[#595959,plain]- "1" SensorTemperaturePair         
+SensorLocationPair             -[#008200,dashed]-^  HasUUID                              
+SensorLocationPairRegistry     -[#008200,dashed]-^  IPairRegistry                 
+SensorLocationPairRegistry     -[#000082,plain]-^  Registry                      
+SensorLocationPairRegistry    "1" *-[#595959,plain]- "*" SensorLocationPair             : registered-in <
+SensorRegistry                 -[#000082,plain]-^  Registry                      
+SensorRegistry                "1" *-[#595959,plain]- "*" Sensor                         : registered-in <
+SensorTemperaturePair          -[#008200,dashed]-^  HasUUID                  
+SensorTemperaturePairRegistry  -[#008200,dashed]-^  IPairRegistry                 
+SensorTemperaturePairRegistry  -[#000082,plain]-^  Registry                      
+SensorTemperaturePairRegistry  "1" *-[#595959,plain]- "*" SensorTemperaturePair          : registered-in <
+Temperature                    -[#008200,dashed]-^  HasUUID                       
+Temperature                   "1" -[#595959,plain]- "1" SensorTemperaturePair         
+TemperatureRegistry            -[#000082,plain]--^  Registry                      
+TemperatureRegistry          "1"  *-[#595959,plain]- "*" Temperature                    : registered-in <
+@enduml

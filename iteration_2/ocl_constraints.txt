@@ -1,0 +1,96 @@
+// IDs must be unique
+context LocationRegistry
+inv: self.items->isUnique(id | id.locationID)
+
+context SensorRegistry
+inv: self.items->isUnique(id | id.sensorID)
+
+context SensorLocationPairRegistry
+inv: self.items->isUnique(id | id.sensorLocationPairID)
+
+context SensorTemperaturePairRegistry
+inv: self.items->isUnique(id | id.sensorTemperaturePairID)
+
+context TemperatureRegistry
+inv: self.items->isUnique(id | id.temperatureID)
+
+// SENSOR OCL //
+
+// A deployed sensor must have non-null associations
+context Sensor
+inv: self.isDeployed implies (self.locationPair <> null and self.temperaturePair <> null)
+
+// An undeployed sensor must have null associations
+context Sensor
+	inv: not self.isDeployed implies (self.locationPair = null and self.temperaturePair = null)
+
+// Deploy sensor operation
+context Sensor::deploy(locationPair, temperaturePair)
+	pre: not self.isDeployed and self.sensorLocationPair = null and self.sensorTemperaturePair = null
+	post self.isDeployed and self.sensorLocationPair <> null and self.sensorTemperaturePair <> null
+
+// LOCATION OCL //
+
+// A location must have a name
+context Location
+	inv: self.locationName.notEmpty()
+
+// A location must always be mapped to a Sensor
+context Location
+	inv: self.SensorLocationPair <> null
+
+
+// REGISTRIES //
+// All sensors present in pair registries must be deployed
+
+context SensorLocationPairRegistry
+	inv: self.registryItems->forAll(pair | pair.getSensor().getIsDeployed())
+
+context SensorTemperaturePairRegistry
+inv: self.registryItems->forAll(pair | pair.getSensor().getIsDeployed())
+
+// All elements in pair registries must be present in their respective registry
+context RegistryManager
+	inv: self.getSensorLocationPairRegistry().registryItems->forAll(pair | self.getSensorRegistry().registryItems->exists(sensor | sensor.getUUID() = pair.getSensor().getUUID()))
+	inv: self.getSensorLocationPairRegistry().registryItems->forAll(pair | self.getLocationRegistry().registryItems->exists(location | location.getUUID() = pair.getLocation().getUUID()))
+	inv: self.getSensorTemperaturePairRegistry().registryItems->forAll(pair | self.getTemperatureRegistry().registryItems->exists(temperature | temperature.getUUID() = pair.getTemperature().getUUID()))
+
+// Delete a Sensor
+context SensorRegistry::deleteItem(sensor)
+	pre: self.registryItems->exists(sensor)
+	post: if(sensor.isDeployed) then
+		delete(sensor.locationPair)
+		delete(sensor.temperaturePair)
+	      endif
+		and
+	      not self.registryItems->exists(sensor)
+
+
+// RegistryManager registries must always be available
+context RegistryManager
+	inv: self.locationRegistry <> null and
+     		self.sensorRegistry <> null and
+     		self.sensorLocationPairRegistry <> null and
+     		self.sensorTemperaturePairRegistry <> null and
+     		self.temperatureRegistry <> null
+
+
+// REGISTRY OPERATIONS
+
+context Registry::removeItem(item)
+	pre: self.registryItemss->includes(item)
+	post: not self.registryItems->includes(item)
+
+
+context Registry::addItem(item)
+	pre: not self.registryItems->includes(item)
+	post: self.registryItems->includes(item)
+
+
+
+
+
+
+
+
+
