@@ -16,8 +16,12 @@ public class Console {
             if(i < 70){
                 // Create a location
                 UUID locationUUID = registryManager.getLocationRegistry().createItem();
-                registryManager.getLocationRegistry().updateLocationName(locationUUID, "Loc(" + (char)i + ")");
-                registryManager.getSensorRegistry().deploySensor(sensorUUID, locationUUID);
+                try {
+                    registryManager.getLocationRegistry().updateLocationName(locationUUID, "Loc(" + (char)i + ")");
+                    registryManager.getSensorRegistry().deploySensor(sensorUUID, locationUUID);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
@@ -31,9 +35,10 @@ public class Console {
                 "1. Add a sensor\n" +
                 "2. Deploy a sensor\n" +
                 "3. Remove a sensor\n" +
-                "4. Display all sensors\n" +
-                "5. Display all locations\n" +
-                "6. Exit";
+                "4. Read a temperature\n" +
+                "5. Display all sensors\n" +
+                "6. Display all locations\n" +
+                "7. Exit";
         while(true) {
             System.out.println(menu);
             // Get the user's input and catch errors
@@ -51,12 +56,15 @@ public class Console {
                         removeSensor();
                         break;
                     case 4:
-                        displaySensors();
+                        readTemperature();
                         break;
                     case 5:
-                        displayLocations();
+                        displaySensors();
                         break;
                     case 6:
+                        displayLocations();
+                        break;
+                    case 7:
                         System.exit(0);
                         break;
                     default:
@@ -64,9 +72,21 @@ public class Console {
                         break;
                 }
             } catch (Exception e) {
-                System.out.println("Invalid option");
-                scanner.nextLine();
+                System.out.println(e.getMessage());
             }
+        }
+    }
+
+    private static void readTemperature() {
+        // Retrieve Sensor UUID from user
+        scanner.nextLine();
+        System.out.println("Enter the UUID of the sensor: ");
+        String sensorUUID = scanner.nextLine();
+        // Retrieve the temperature
+        try {
+            System.out.println("Temperature: " + registryManager.getLocationRegistry().getLocationTemperature(UUID.fromString(sensorUUID)));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -74,7 +94,7 @@ public class Console {
         registryManager.getSensorRegistry().createItem();
     }
 
-    public static void removeSensor(){
+    public static void removeSensor() throws Exception {
         // Retrieve Sensor UUID from user
         scanner.nextLine();
         System.out.println("Enter the UUID of the sensor: ");
@@ -88,17 +108,26 @@ public class Console {
         System.out.println("Enter the UUID of the sensor: ");
         String sensorUUID = scanner.nextLine();
         // Check if the sensor is already deployed
-        if(registryManager.getSensorRegistry().isSensorDeployed(UUID.fromString(sensorUUID))){
-            System.out.println("Sensor already deployed");
-            return;
+        try {
+            if(registryManager.getSensorRegistry().isSensorDeployed(UUID.fromString(sensorUUID))){
+                System.out.println("Sensor already deployed");
+                return;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         // Create a location
         System.out.println("Location name: ");
         String locationName = scanner.nextLine();
         UUID locationUUID = registryManager.getLocationRegistry().createItem();
-        registryManager.getLocationRegistry().updateLocationName(locationUUID, locationName);
+        try {
+            registryManager.getLocationRegistry().updateLocationName(locationUUID, locationName);
+            registryManager.getSensorRegistry().deploySensor(UUID.fromString(sensorUUID), locationUUID);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         // Deploy the sensor
-        registryManager.getSensorRegistry().deploySensor(UUID.fromString(sensorUUID), locationUUID);
+
     }
 
     public static void displayLocations(){

@@ -10,7 +10,8 @@ public class Temperature implements HasUUID {
 
     public Temperature() {
         this.temperatureID = UUID.randomUUID();
-        this.value = 0.0f;
+        // Random number between 17 and 32 with 3 significant figures
+        this.value = (float) (Math.round((Math.random() * 15 + 17) * 100.0) / 100.0);
     }
 
     public void setSensorTemperaturePair(SensorTemperaturePair sensorTemperaturePair) {

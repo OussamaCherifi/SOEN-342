@@ -37,9 +37,9 @@ public class Location implements HasUUID {
         }
 
         public String toString() {
-            // Return Location: {Location name: <locationName>, SensorUUID: <sensorID>}
-            return "Location: {Location name: " + this.locationName + ", SensorUUID: " +
-                    this.sensorLocationPair.getSensor().getUUID() + "}";
+            // Return Location: {Location name: <locationName>, LocationUUID: <locationID>, SensorUUID: <sensorID>}
+            return String.format("Location: {Location name: %s, LocationUUID: %s, SensorUUID: %s}",
+                    this.locationName, this.locationID, this.sensorLocationPair.getSensor().getUUID());
         }
 
 }

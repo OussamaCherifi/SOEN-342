@@ -25,13 +25,13 @@ public class SensorRegistry extends Registry<Sensor> {
     }
 
     // Check if the sensor is already deployed
-    public boolean isSensorDeployed(UUID sensorUUID){
+    public boolean isSensorDeployed(UUID sensorUUID) throws Exception {
         Sensor sensor = getItem(sensorUUID);
         return sensor.getIsDeployed();
     }
 
 
-    public void deploySensor(UUID sensorUUID, UUID locationUUID) {
+    public void deploySensor(UUID sensorUUID, UUID locationUUID) throws Exception {
         Sensor sensor = getItem(sensorUUID);
         // Check if the sensor is already deployed
         if(isSensorDeployed(sensorUUID)) {
@@ -56,7 +56,7 @@ public class SensorRegistry extends Registry<Sensor> {
     }
 
     @Override
-    public void deleteItem(UUID itemUUID) {
+    public void deleteItem(UUID itemUUID) throws Exception {
         // To delete a sensor, we need to delete its associations
         Sensor sensor = getItem(itemUUID);
         if(isSensorDeployed(sensor.getUUID())) {

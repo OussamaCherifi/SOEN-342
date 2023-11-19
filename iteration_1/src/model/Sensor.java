@@ -36,20 +36,12 @@ public class Sensor implements HasUUID {
         return this.isDeployed;
     }
 
-    public void updateTemperature(float temperature) {
-        this.temperaturePair.getTemperature().setValue(temperature);
-    }
-
     public void setIsDeployed(boolean isDeployed) {
         this.isDeployed = isDeployed;
     }
 
     public SensorLocationPair getLocationPair() {
         return this.locationPair;
-    }
-
-    public void setLocationPair(SensorLocationPair locationPair) {
-        this.locationPair = locationPair;
     }
 
     public SensorTemperaturePair getTemperaturePair() {
@@ -60,10 +52,9 @@ public class Sensor implements HasUUID {
         // Conditionally display location and temperature information if sensor is deployed
         // Display sensor ID and deployment status using string formatting
         if (this.isDeployed) {
-            return String.format("Sensor: {UUID: %s, isDeployed: True: Location: %s, Reading: %s}",
+            return String.format("Sensor: {UUID: %s, isDeployed: True: Location: %s}",
                     this.sensorID,
-                    this.locationPair.getLocation(),
-                    this.temperaturePair.getTemperature().getValue());
+                    this.locationPair.getLocation());
         } else {
             return String.format("Sensor: {UUID: %s, isDeployed: False}", this.sensorID);
         }
