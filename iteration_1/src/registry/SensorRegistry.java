@@ -69,6 +69,7 @@ public class SensorRegistry extends Registry<Sensor> {
         }
         // Remove the sensor from the registry
         removeItem(itemUUID);
+        System.out.println("Sensor removed");
     }
 
 

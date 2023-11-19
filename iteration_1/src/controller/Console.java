@@ -46,30 +46,14 @@ public class Console {
                 int option = scanner.nextInt();
                 // Switch statement to handle the user's input
                 switch (option) {
-                    case 1:
-                        addSensor();
-                        break;
-                    case 2:
-                        deploySensor();
-                        break;
-                    case 3:
-                        removeSensor();
-                        break;
-                    case 4:
-                        readTemperature();
-                        break;
-                    case 5:
-                        displaySensors();
-                        break;
-                    case 6:
-                        displayLocations();
-                        break;
-                    case 7:
-                        System.exit(0);
-                        break;
-                    default:
-                        System.out.println("Option out of range");
-                        break;
+                    case 1 -> addSensor();
+                    case 2 -> deploySensor();
+                    case 3 -> removeSensor();
+                    case 4 -> readTemperature();
+                    case 5 -> displaySensors();
+                    case 6 -> displayLocations();
+                    case 7 -> System.exit(0);
+                    default -> System.out.println("Option out of range");
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -80,7 +64,7 @@ public class Console {
     private static void readTemperature() {
         // Retrieve Sensor UUID from user
         scanner.nextLine();
-        System.out.println("Enter the UUID of the sensor: ");
+        System.out.println("Enter the UUID of the location: ");
         String sensorUUID = scanner.nextLine();
         // Retrieve the temperature
         try {
@@ -100,6 +84,7 @@ public class Console {
         System.out.println("Enter the UUID of the sensor: ");
         String sensorUUID = scanner.nextLine();
         registryManager.getSensorRegistry().deleteItem(UUID.fromString(sensorUUID));
+
     }
 
     public static void deploySensor(){
